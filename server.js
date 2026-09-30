@@ -5,6 +5,10 @@ const app = express()
 const port = 3000
 const pathToFile = path.join(__dirname, 'db.json')
 
+const cache = {
+
+}
+
 async function readFile(){
     try{
         let data = await fs.promises.readFile(pathToFile, 'utf-8')
@@ -23,9 +27,14 @@ async function readFileWithDelay(){
 
 app.get('/products', async (req, res) => {
     try{
+        let key = req.url;
+        let value = cache[key];
+        if (value) 
+            return res.json(value);
         let products = await readFileWithDelay();
+        cache[key] = products;
         console.log(products)
-        res.json(products)
+        return res.json(products)
     }
     catch(err){
         console.log(err)
